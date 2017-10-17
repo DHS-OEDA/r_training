@@ -1,0 +1,81 @@
+---
+title: "Lab 2"
+author: "Aaron C Cochran"
+date: "October 17, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Intro 
+
+This second lab takes an applied project approach to teaching basic data manipulation with `dplyr` and graphing using `ggplot2`. 
+
+This lab was adapted from <http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html>. It has been changed to conform with the `tidyverse` package and methods of data manipulation.
+
+Datasets are available on the DHS-OEDA GitHub page here: <https://github.com/DHS-OEDA/r_training>
+
+## Objective
+
+The goal of this lab is to re-create this image from The Economist.
+
+![](img/corruption.png)
+
+# Getting started
+
+## Data
+
+```{r}
+econ_data <- read_csv('data/lab_2/EconomistData.csv')
+head(econ_data)
+```
+
+The original sources for these data are Transparency International and UN Human Development Reports.
+
+
+### Exercise
+
+These data consist of Human Development Index and Corruption Perception Index scores for several countries.
+
+1. Create a scatter plot with `CPI` on the x axis and `HDI` on the y axis.
+2. Map the color of the the points to `Region`.
+3. Map the size of the points to `HDI.Rank`
+
+```{r ex-1}
+# Create scatter plot with CPI on x axis and HDI on the y axis.
+ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
+  geom_point(aes(color = Region, size=HDI.Rank)) 
+```
+
+### Exercise
+
+Re-create the graph in the first exercise, but include a smoothing line (`geom_smooth`)
+
+
+```{r ex-2}
+# Create scatter plot with CPI on x axis and HDI on the y axis.
+ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
+  geom_point(aes(color = Region, size=HDI.Rank)) +
+  geom_smooth(method = "loess") 
+```
+
+### Exercise
+
+Using the graph from the previous exercises, let's make some changes to aesthetics. 
+
+1. Rename the axis titles to their full name instead of abbreviations
+2. Add a title to the plot
+
+
+```{r ex-3}
+ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
+  geom_point(aes(color = Region, size=HDI.Rank)) +
+  geom_smooth(method = "loess") +
+  ggtitle('Human Development Index vs. Corruption Perception Index') +
+  scale_x_continuous(name = "Corruption Perception Index") +
+  scale_y_continuous(name = "Human Development Index")
+```
+
