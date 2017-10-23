@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(ggthemes)
 ```
 
 # Intro 
@@ -20,7 +21,7 @@ Datasets are available on the DHS-OEDA GitHub page here: <https://github.com/DHS
 
 ## Objective
 
-The goal of this lab is to re-create this image from The Economist.
+The goal of this lab is to re-create this image from The Economist. This will demonstrate how to turn the default graphs produced in R into publication-quality images. 
 
 ![](img/corruption.png)
 
@@ -68,6 +69,7 @@ Using the graph from the previous exercises, let's make some changes to aestheti
 
 1. Rename the axis titles to their full name instead of abbreviations
 2. Add a title to the plot
+3. Change color scale to something from the `colorbrewR` scales, like `Dark2`. 
 
 
 ```{r ex-3}
@@ -75,7 +77,9 @@ ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
   geom_point(aes(color = Region, size=HDI.Rank)) +
   geom_smooth(method = "loess") +
   ggtitle('Human Development Index vs. Corruption Perception Index') +
-  scale_x_continuous(name = "Corruption Perception Index") +
+  scale_x_continuous(name = "Corruption and Human Development") +
+  scale_color_brewer(palette = "Dark2") +
   scale_y_continuous(name = "Human Development Index")
+
 ```
 

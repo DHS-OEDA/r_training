@@ -1,0 +1,223 @@
+---
+title: "Lab 1: NYC Flights"
+author: "Aaron C Cochran"
+date: "October 5, 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(nycflights13)
+library(tidyverse)
+data(flights)
+```
+
+# Objectives
+
+In this first lab you will:
+
+- use an established r dataset from `nycflights13`
+- explore the dataset 
+- create graphical summaries
+
+Most of this lab comes directly from the R for Data Science book by Hadley Wickham and Garrett Grolemund, available at <http://r4ds.had.co.nz/>.
+
+## Load Data
+
+Load the data and check out the structure of the dataset.
+
+```{r demo-load-data, eval=TRUE, echo=TRUE}
+library(nycflights13)
+data(flights)
+head(flights)
+```
+
+
+### Questions
+
+How many rows are in the dataset?
+
+How many variables?
+
+What type (class) of variable is the time_hour variable?
+
+## Exploring the data
+
+Let's dig into the dataset and explore it.
+
+
+```{r dplyr-unique, eval=TRUE, echo=TRUE}
+
+# using dplyr's n_distinct is the same as length(unique(x)) from base R
+# but faster and easier to use
+n_distinct(flights$tailnum)
+
+# how many origin airports in NY?
+n_distinct(flights$origin)
+
+# what are the origin airports?
+levels(as.factor(flights$origin))
+
+# how many destinations? 
+# (note: way more, probably don't want to list them all)
+n_distinct(flights$dest)
+
+```
+
+How many total flights departed from just JFK?  This will use the `filter` command from `dplyr`. 
+
+> Note the use of the double equals sign == which is the equivalent of "is equal to"
+
+```{r dplyr-filter}
+
+flights %>% 
+  filter(origin == 'JFK') %>% 
+  nrow() # nrow() gives the number of rows
+
+```
+
+What was the average departure delay? What is the standard deviation?
+
+```{r dplyr-summary}
+
+summarize(flights, mean = mean(dep_delay, na.rm=T), sd = sd(dep_delay, na.rm=T)) 
+# note the na.rm=T argument. This tells R to ignore (remove) NA
+# values when calculating the mean and standard deviation
+
+```
+
+
+### Questions
+
+1. How many flights departed from LaGuardia (LGA) for Portland (PDX)
+
+> Hint: You can combine filtered terms with & (and) or | (or). 
+
+```{r q2-1, include=TRUE}
+
+flights %>% 
+  filter(origin == 'JFK' & dest == 'PDX') %>% 
+  nrow()
+
+
+```
+
+2. What was the average `air_time` for these flights?
+
+```{r q2-2, include=TRUE}
+
+flights %>% 
+  filter(origin == 'JFK' & dest == 'PDX') %>% 
+  summarise(mean_air_time = mean(air_time, na.rm=T), sd_air_time = sd(air_time, na.rm=T))
+  
+```
+
+3. How many flights from each airport happened in July?
+
+```{r q2-3, include=TRUE}
+
+flights %>% 
+  filter(month == 7) %>% 
+  group_by(month, origin) %>% 
+  summarise(count = n())
+
+```
+
+
+## Visualizing the data
+
+#### geom_histogram()
+
+Using `ggplot2` let's create some graphical summaries of the data. 
+
+```{r plot-1}
+
+flights %>% filter(origin == 'JFK' & dest == 'PDX') %>%  
+  # note that ggplot2 doesn't use the %>% pipe operator
+  # it was written before that was adopted
+  # so it still uses a + sign. 
+  ggplot() + 
+  # define the geom
+  geom_histogram(aes(x=factor(month)), stat='count') +
+  # x-axis title
+  scale_x_discrete("Month") +
+  # y-axis title
+  scale_y_continuous('Flights') +
+  # graph title
+  ggtitle('Flights from JFK to PDX, by month') 
+
+```
+
+#### facet_wrap()
+
+
+```{r plot-2}
+# all airports to PDX as a facet
+flights %>% filter(dest=='PDX') %>% 
+  # note that LGA does not fly to PDX so it is automatically filtered out
+  ggplot() +
+  geom_histogram(aes(x=factor(month)), stat='count') +
+  # facet_wrap splits the graphs up by the specified variable
+  facet_wrap(~origin) +
+  # title and labels as before
+  scale_x_discrete('Month') +
+  ggtitle('Flights from NY Airports to PDX, by month')
+  
+```
+
+#### geom_density()
+
+`geom_density()` creates density plots, which can be easily overlayed to show distributions between groups. 
+
+Example:
+
+Do certain carriers fly more long or short routes?  Let's look just at flights leaving `JFK`, by carrier, with respect to total `air_time`. For this, we'll need to use another dataset in the `nycflights13` package that contains the names of the airlines, instead of just the carrier codes. This will require a `left_join` (SQL users will recognize this term) on a common column between the two datasets.
+
+
+```{r plot-3}
+data(airlines) # loaded from nycflights13 package
+
+flights  %>% # start with flight data
+  left_join(airlines, by="carrier") %>% # join with airlines data to get names of airlines 
+  subset(origin == 'JFK') %>% # only flights leaving from JFK
+  ggplot(aes(x=air_time)) +  # generate ggplot object
+  geom_density(stat='density', # add density plot geom
+               aes(fill=factor(name)), # name is the new column we joined to our data
+               alpha = .5) + # alpha sets transparency
+  ggtitle('Flight time for JFK departures, by airline') # title
+```
+
+
+### Exercises
+
+
+1. Create a graph showing flights to `PDX` by month from both `EWR` and `JFK`, but as a dodged bar chart instead of a faceted one. 
+
+> Hint: position = "dodge" is the option for geom_bar()
+
+```{r, include=TRUE}
+flights %>% filter(dest=='PDX') %>%
+  ggplot() +
+  geom_bar(position = "dodge", stat = "count", aes(x=factor(month), fill=origin)) +
+  ggtitle('Flights to PDX by month, by origin')
+```
+
+2. What types of planes, and how many of each does Jet Blue (`carrier == B6`) fly? 
+
+> Hint: You'll need to join with the `planes` dataset in the `nycflights13` package for this one.
+
+```{r, include=TRUE}
+flights %>%
+  left_join(planes, by="tailnum") %>% # join with planes by tailnum
+  filter(carrier == 'B6') %>% # filtered to just include Jet Blue (B6)
+  ggplot() + geom_bar(stat = 'count', aes(x=factor(model))) +
+  geom_label(stat='count', aes(label = ..count.., x=factor(model)), vjust=.35) +
+  theme(axis.text.x = element_text(angle = 0)) + # Change angle to rotate text
+  xlab('Aircraft Model') +
+  ggtitle('Jet Blue airplane models, 2013 NYC Flights')
+```
+
+
+
