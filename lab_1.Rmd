@@ -37,11 +37,28 @@ head(flights)
 
 ### Questions
 
-How many rows are in the dataset?
+How many rows are in the dataset? `nrow(DATA)` 
 
-How many variables?
+```{r, include=FALSE}
+nrow(flights)
+```
 
-What type (class) of variable is the time_hour variable?
+
+How many variables? `ncol(DATA)`
+
+```{r, include=FALSE}
+ncol(flights)
+```
+
+What type (class) of variable is the time_hour variable? `class(DATA$VARIABLE)`
+
+> Hint: ?class to get more help.
+
+```{r, include=FALSE}
+
+class(flights$time_hour)
+
+```
 
 ## Exploring the data
 
@@ -87,7 +104,6 @@ summarize(flights, mean = mean(dep_delay, na.rm=T), sd = sd(dep_delay, na.rm=T))
 # values when calculating the mean and standard deviation
 
 ```
-
 
 ### Questions
 
