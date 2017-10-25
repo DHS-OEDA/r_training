@@ -1,0 +1,117 @@
+
+<style>
+body {
+    overflow: scroll;
+}
+</style>
+
+
+Lesson 2: Basic Statistics in R
+========================================================
+author: 
+date: 
+autosize: false
+
+```{r setup, include=FALSE}
+opts_chunk$set(cache=TRUE, echo=TRUE, fig.height = 10, fig.width = 10, fig.show = 'hold', fig.align = 'center')
+library(tidyverse)
+library(nycflights13)
+library(sjmisc)
+```
+
+Objectives
+======================================================
+
+* Descriptive statistics
+* Hypothesis testing
+* Linear models
+
+Descriptive Statistics
+======================================================
+
+
+```{r}
+suppressWarnings(library(nycflights13))
+data(flights)
+mean(flights$dep_delay, na.rm=T) # removing NAs is a must!
+max(flights$dep_delay, na.rm=T) 
+summary(flights$dep_delay) # summary table of continuous variable
+```
+
+Frequency tables: sjmisc
+======================================================
+
+Using `library(sjmisc)` you can get a lot of the same types of descriptives more easily.
+
+_Bonus: It is tidyverse compatible!_
+
+```{r}
+data(flights)
+flights %>% group_by(carrier) %>% frq(origin)
+```
+
+
+Descriptive stats: sjmisc
+=====================================================
+
+```{r}
+flights %>% descr()
+```
+
+
+Hypothesis testing
+=====================================================
+type:section
+
+
+t.test
+====================================================
+
+```{r}
+# simulated data
+set.seed(1) # pseudorandom number seed
+x <- rnorm(10)
+y <- rnorm(10)
+t.test(x, y)
+```
+
+Categorical data
+====================================================
+
+`chisq.test` and `kruskal.test` here
+
+
+Linear models
+=====================================================
+type:section
+
+
+glm
+=====================================================
+
+Generalized linear models
+
+```{r, echo=TRUE, eval=FALSE}
+glm(formula, family = familytype, data=data)
+```
+
+lm example
+====================================================
+```{r}
+data("mtcars")
+# basic linear model using lm
+fit <- lm(mpg~wt*hp, data=mtcars)
+summary(fit)
+```
+
+Graphing you linear model
+====================================================
+
+```{r}
+ggplot(data=fit, aes(x=mpg, y=wt*hp)) +
+  geom_point() +
+  geom_smooth(method='lm', se = FALSE)
+```
+
+
+
