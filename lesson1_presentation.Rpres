@@ -5,7 +5,6 @@ body {
 }
 </style>
 
-
 R Crash Course: Lesson 1
 ========================================================
 author: Aaron C Cochran
@@ -19,7 +18,9 @@ opts_chunk$set(cache=TRUE, echo=TRUE, fig.height = 10, fig.width = 10, fig.show 
 library(tidyverse)
 library(nycflights13)
 library(gapminder)
+library(microbenchmark)
 library(Lahman)
+library(shiny)
 mpg <- ggplot2::mpg
 diamonds <- ggplot2::diamonds
 ```
@@ -68,7 +69,6 @@ Best practice: Create a new project folder for each project to isolate your code
 
 ```{r, echo=TRUE, eval = TRUE}
 getwd()
-
 ```
 
 Working Directory
@@ -105,6 +105,12 @@ install.packages("tidyverse")
 You can also do it through the RStudio GUI under **Tools >> Install Packages**
 
 ![rstudio-packages](img/rstudio-install-package-1.png)
+
+Packages: The Tidyverse
+========================================================
+
+![tidyverse](img/tidyverse-components.jpg)
+
 
 Packages
 =========================================================
@@ -230,15 +236,40 @@ l[[2]] # select the 2nd element of the list
 l # see the whole list
 ```
 
+Tidyverse: tibbles
+======================================================
+
+
+Tibbles are a modern take on data.frames. If you use `tidyverse` and the accompanying `tibble` package from the start you'll never notice the changes, but they make life easier. 
+
+* Displays data in a more friendly format
+* They drop features that are no longer useful (`stringsAsFactors = FALSE`, I'm looking at you)
+* Tibbles are faster to work with
+
+```{r, echo=TRUE, eval=TRUE}
+if (requireNamespace("microbenchmark")) {
+  l <- replicate(26, sample(100), simplify = FALSE)
+  names(l) <- letters
+
+  microbenchmark::microbenchmark(
+    as_tibble(l),
+    as.data.frame(l)
+  )
+}
+```
+
+
 Reading & manipulating data
 ======================================================
 type:section
 
 Using `readr` and `dplyr` from the `tidyverse` series of packages
 
+![readr](img/readr.png)
+![dplyr](img/dplyr.png)
+
 
 =====================================================
-
 
 Read in data from a .csv using `read_csv`. 
 
@@ -292,6 +323,9 @@ Like Tolstoy's families, all tidy data is alike, but all untidy data is uniquely
 2. Each observation forms a row
 3. Each type of observational unit forms a table
 
+
+![tidy-1](img/tidy-1.png)
+
 > See <https://www.jstatsoft.org/article/view/v059i10/v59i10.pdf> by Hadley Wickham (2014) for more details
 
 
@@ -325,7 +359,6 @@ stocks_tidy <- # we're saving our data as a new data.frame
 head(stocks_tidy,12)
 ```
 
-
 ======================================================
 
 Why does it matter if the data is tidy?
@@ -339,7 +372,7 @@ Why does it matter if the data is tidy?
 
 ` %>% ` is the pipeline operator. It says "take the object on the left, and do the function on the right to it"
 
-Synonymous to `f(x(y))` but makes for much easier to read code. For example, let's say we wanted to know the high and low value of each stock.
+Synonymous to `f(x,y)` but makes for much easier to read code. For example, let's say we wanted to know the high and low value of each stock.
 
 ```{r}
 stocks %>% # raw data
@@ -364,9 +397,7 @@ messy <- data.frame(
   work.T2 = runif(4), # of a uniform distribution
   home.T2 = runif(4)
 )
-
 messy
-
 ```
 
 =======================================================
@@ -390,6 +421,115 @@ tidy <- tidier %>%
   separate(key, into = c("location", "time"), sep = "\\.")
 tidy %>% head(8)
 ```
+
+dates and times in R
+=======================================================
+
+R stores dates and date-times.
+
+`lubridate` from the `tidyverse` packages makes this much easier
+
+```{r}
+library(lubridate)
+today()
+now()
+```
+
+string dates
+=======================================================
+
+Date/time often exists as strings in administrative databases. 
+
+```{r}
+# using lubridate
+ymd("2017-01-01")
+mdy("January 31st, 2017")
+dmy("31-Jan-2017")
+```
+
+dates and times
+=========================================================
+
+Using `nycflights13` flight data
+
+```{r}
+data(flights)
+
+flights %>% select(year, month, day, hour, minute)
+```
+
+dates and times
+========================================================
+
+```{r}
+flights %>% 
+  select(year, month, day, hour, minute) %>% 
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+```
+
+dates and times
+=======================================================
+
+Recall that the four time columns in `flights` were not date-time <`dttm`> variables.
+
+```{r}
+flights %>% 
+  select(year, month, day, hour, minute, dep_delay, arr_delay, dep_time, arr_time) %>% 
+  head()
+```
+
+dates and times
+======================================================
+
+We need to use modulus arithmetic to pull out hours and minutes from the time variables. This is a bit more advanced, so let's walk through it slowly.
+
+```{r}
+# create a function -- for more information read the Functions chapter (19) in the text
+
+make_datetime_100 <- function(year, month, day, time) {
+  make_datetime(year, month, day, time %/% 100, time %% 100) # time %/% 100 extracts the hour, time %% 100 extracts the minute
+}
+
+
+flights_dt <- flights %>% 
+  filter(!is.na(dep_time), !is.na(arr_time)) %>% 
+  mutate(
+    dep_time = make_datetime_100(year, month, day, dep_time),
+    arr_time = make_datetime_100(year, month, day, arr_time),
+    sched_dep_time = make_datetime_100(year, month, day, sched_dep_time),
+    sched_arr_time = make_datetime_100(year, month, day, sched_arr_time)) %>% 
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+
+flights_dt
+
+```
+
+why bother?
+====================================================
+
+```{r}
+# do math with dttm
+
+df <- flights_dt[1:10,]
+
+df$travel_time <- df$arr_time - df$dep_time
+
+df$travel_time
+```
+
+why bother?
+=====================================================
+
+ggplot knows how to work with dates and times
+
+```{r}
+flights_dt %>% 
+  filter(dep_time < ymd(20130102)) %>% 
+  ggplot(aes(dep_time)) + 
+  geom_freqpoly(binwidth = 600, , size=1) # 600 s = 10 minutes
+```
+
+
 
 
 Data exploration: Visualization
@@ -418,8 +558,6 @@ We're going to use the `mpg` data frame found in ggplot2 (aka `ggplot2::mpg`). `
 ```{r}
 ggplot2::mpg
 ```
-
-
 
 ======================================================
 
@@ -577,12 +715,10 @@ ggplot(data=mpg) +
 
 ======================================================
 
-
-
 The previous plot introduced duplications in our code. We had to specify the aesthetic mappings for each geom, which could lead to typos. When you put mappings inside of the geom, it applies them to *that layer only*. To fix that, you can do this:
 
 ```{r}
-ggplot(data=mpg, mapping = aes(x=displ, y=hwy)) +
+ggplot(data=mpg, mapping = aes(x=displ, y=hwy)) + # aes() is in the global environment
   geom_point(size=2) +
   geom_smooth() +
   theme(axis.text.x=element_text(size = 12), 
@@ -597,8 +733,8 @@ ggplot(data=mpg, mapping = aes(x=displ, y=hwy)) +
 Then, you can apply layer-specific aesthetics to the layer you want:
 
 ```{r}
-ggplot(data=mpg, mapping = aes(x=displ, y=hwy)) +
-  geom_point(mapping = aes(color = class), size=2) +
+ggplot(data=mpg, mapping = aes(x=displ, y=hwy)) + # aes(x, y) are global (inherited by all geoms)
+  geom_point(mapping = aes(color = class), size=2) + # aes(color) is only part of geom_point here
   geom_smooth(data=filter(mpg, class == "subcompact"), se = FALSE)
 ```
 
@@ -667,14 +803,32 @@ ggplot(data=diamonds) +
         axis.title.y=element_text(size = 14))
 ```
 
+ggthemes
+=====================================================
 
-Lab 1
-======================================================
-type:section
+Creating your own theme is time consuming up-front. `ggthemes` can help. 
 
-Time for some exercises. 
+```{r, echo=TRUE, eval=TRUE}
+library(ggthemes)
+ggplot(data=diamonds) +
+  geom_bar(mapping = aes(x=cut, fill=clarity), position = "dodge") +
+  theme_minimal()
+```
 
-Labs are available at  <https://github.com/DHS-OEDA/r_training/>
+ggThemeAssist
+=====================================================
+
+A `shiny` based application for those who like GUIs. 
+
+```{r, echo=TRUE, eval=FALSE}
+library(ggThemeAssist)
+
+p <- ggplot(data=diamonds) +
+  geom_bar(mapping = aes(x=cut, fill=clarity), position = "dodge")
+
+ggThemeAssist::ggThemeAssistGadget(p)
+
+```
 
 
 For more information
@@ -690,3 +844,32 @@ Another nice ggplot2 tutorial
 
 DataCamp courses are free to start, but cost money to access later chapters. 
 <https://www.datacamp.com/courses/data-visualization-with-ggplot2-1>
+
+
+Where to get help?
+=====================================================
+
+Asking questions:
+
+[StackOverflow](https://stackoverflow.com/questions/tagged/r)
+[ggplot2 Google Group](https://groups.google.com/forum/#!forum/ggplot2)
+
+Or, you know... me. (Email: aaron.c.cochran@state.or.us, Phone: 503-945-6867)
+
+Social Media:
+[RStudio Tips Twitter](https://twitter.com/rstudiotips)
+[Rbloggers Twitter](https://twitter.com/rbloggers?lang=en)
+[RTips Twitter](https://twitter.com/R_Programming)
+
+For fun:
+[RCatLadies Twitter](https://twitter.com/rcatladies?lang=en)
+
+Lab 1
+======================================================
+type:section
+
+Time for some exercises. 
+
+Labs are available at  <https://github.com/DHS-OEDA/r_training/>
+
+

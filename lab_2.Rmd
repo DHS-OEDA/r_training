@@ -9,13 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggthemes)
+econ_data <- read_csv('data/lab_2/EconomistData.csv')
 ```
 
 # Intro 
 
 This second lab takes an applied project approach to teaching basic data manipulation with `dplyr` and graphing using `ggplot2`. 
 
-This lab was adapted from <http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html>. It has been changed to conform with the `tidyverse` package and methods of data manipulation.
+This lab was adapted from <http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html>. It has been changed to conform with the `tidyverse` package and methods of data manipulation, and updated from the 2012 copy to reflect package changes.
 
 Datasets are available on the DHS-OEDA GitHub page here: <https://github.com/DHS-OEDA/r_training>
 
@@ -83,3 +84,51 @@ ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
 
 ```
 
+### Exercise
+
+Using the graph from the previous exercises, let's make more changes. 
+
+1. Change the geom_point() icons. 
+2. Remove the HDI legend. (`guides(size = FALSE)`)
+3. Make axis labels and tick marks consistent with original graph. (Hint: Tick marks are "breaks" in ggplot2. Also relevant are "limits"). 
+4. Change the theme to `theme_minimal()` from the `ggthemes` package. 
+
+```{r ex-4}
+ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
+  geom_point(aes(color = Region, size=HDI.Rank),
+             shape = 1, fill=NA, stroke=1.5) + # change the symbols to reflect original graph
+  geom_smooth(method = "loess") +
+  ggtitle('Human Development Index vs. Corruption Perception Index') +
+  scale_x_continuous(name = "Corruption and Human Development",
+                     breaks = c(1:10), limits = c(1,10)) + # set breaks and limits
+  scale_color_brewer(palette = "Dark2") +
+  scale_y_continuous(name = "Human Development Index") +
+  guides(size = FALSE) + # remove the legend for size
+  theme_minimal() # change theme
+```
+
+### Exercise
+
+1. Move the legend to the top
+2. Change the legend names for the regions.
+
+
+```{r ex-5}
+ggplot(data=econ_data, aes(x=CPI, y=HDI)) +
+  geom_point(aes(color = Region, size=HDI.Rank),
+             shape = 1, fill=NA, stroke=1.5) + # change the symbols to reflect original graph
+  geom_text(aes(label = Country), check_overlap = T, hjust=-.5, vjust=-.5) +
+  geom_smooth(method = "loess") + 
+  ggtitle('Human Development Index vs. Corruption Perception Index') +
+  scale_x_continuous(name = "Corruption and Human Development",
+                     breaks = c(1:10), limits = c(1,10)) + # set breaks and limits
+  scale_color_brewer(palette = "Dark2", labels = c("Americas", "Asia & Oceania", "Central & Eastern Europe","OECD",
+                                  "Middle East & North Africa", "Sub-Saharan Africa")) +
+  scale_y_continuous(name = "Human Development Index") +
+  guides(size = FALSE) + # remove the legend for size
+  theme_minimal() + # change theme 
+  theme(legend.position = "top")
+
+```
+
+Wow, geom_text really made it messy. Maybe we can clean that up?

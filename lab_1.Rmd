@@ -3,8 +3,8 @@ title: "Lab 1: NYC Flights"
 author: "Aaron C Cochran"
 date: "October 5, 2017"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -123,24 +123,19 @@ flights %>%
 2. What was the average `air_time` for these flights?
 
 ```{r q2-2, include=TRUE}
-
 flights %>% 
   filter(origin == 'JFK' & dest == 'PDX') %>% 
   summarise(mean_air_time = mean(air_time, na.rm=T), sd_air_time = sd(air_time, na.rm=T))
-  
 ```
 
 3. How many flights from each airport happened in July?
 
 ```{r q2-3, include=TRUE}
-
 flights %>% 
   filter(month == 7) %>% 
   group_by(month, origin) %>% 
   summarise(count = n())
-
 ```
-
 
 ## Visualizing the data
 
@@ -225,12 +220,13 @@ flights %>% filter(dest=='PDX') %>%
 > Hint: You'll need to join with the `planes` dataset in the `nycflights13` package for this one.
 
 ```{r, include=TRUE}
+data(planes) # load other dataset from nycflights13
+
 flights %>%
   left_join(planes, by="tailnum") %>% # join with planes by tailnum
   filter(carrier == 'B6') %>% # filtered to just include Jet Blue (B6)
   ggplot() + geom_bar(stat = 'count', aes(x=factor(model))) +
   geom_label(stat='count', aes(label = ..count.., x=factor(model)), vjust=.35) +
-  theme(axis.text.x = element_text(angle = 0)) + # Change angle to rotate text
   xlab('Aircraft Model') +
   ggtitle('Jet Blue airplane models, 2013 NYC Flights')
 ```
