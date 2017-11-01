@@ -10,11 +10,12 @@ Lesson 2: Basic Statistics in R
 ========================================================
 author: 
 date: 
-autosize: false
+autosize: true
 
 ```{r setup, include=FALSE}
 opts_chunk$set(cache=TRUE, echo=TRUE, fig.height = 10, fig.width = 10, fig.show = 'hold', fig.align = 'center')
 library(tidyverse)
+library(broom)
 library(nycflights13)
 library(sjmisc)
 ```
@@ -86,15 +87,6 @@ Linear models
 type:section
 
 
-glm
-=====================================================
-
-Generalized linear models
-
-```{r, echo=TRUE, eval=FALSE}
-glm(formula, family = familytype, data=data)
-```
-
 lm example
 ====================================================
 ```{r}
@@ -104,7 +96,7 @@ fit <- lm(mpg~wt*hp, data=mtcars)
 summary(fit)
 ```
 
-Graphing you linear model
+Graphing your linear model
 ====================================================
 
 ```{r}
@@ -113,5 +105,40 @@ ggplot(data=fit, aes(x=mpg, y=wt*hp)) +
   geom_smooth(method='lm', se = FALSE)
 ```
 
+glm: Generalized linear model
+===================================================
 
+```{r}
+glmfit <- glm(am ~ wt, mtcars, family="binomial")
+glmfit
+```
+
+
+
+broom: tidy up lm and t.test data
+====================================================
+
+The `tidyverse` package `broom` built to tidy up the base R outputs for `lm`, `glm` and `t.test` to conform to tidy data principles. 
+
+Check out the vignette for more details here <https://cran.r-project.org/web/packages/broom/vignettes/broom.html>
+
+```{r broom}
+fit <- lm(mpg~wt*hp, data=mtcars)
+mydat <- broom::augment(fit)
+head(mydat)
+```
+
+broom: tidy up lm and t.test data
+====================================================
+
+There are a couple of other `broom` functions worth noting. These are especially handy for transforming these models into table-friendly versions for publication. 
+
+1. `tidy()` takes the output of a model and makes it a tidy data frame of its own.
+2. `glance()` returns only the goodness-of-fit calculations of the model. These calculations are specific to the type of model. 
+
+```{r}
+head(tidy(fit))
+glance(fit)
+glance(glmfit)
+```
 
