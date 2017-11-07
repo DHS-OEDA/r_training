@@ -60,6 +60,17 @@ The very basics
 - **Transform** the data, **visualize** it, and use it to construct your **model**
 - **Communicate** your results
 
+Course Materials
+=======================================================
+
+Go here, download the repository contents as a zip:
+
+<https://www.github.com/DHS-OEDA/r_training>
+
+![git-download](img/github1.png)
+
+Then, extract it to a folder, and note the path to the folder.
+
 Working Directory
 ========================================================
 
@@ -67,8 +78,11 @@ Best practice: Create a new project folder for each project to isolate your code
 
 *File >> New Project...*
 
+Point it to the existing folder you just created.
+
 ```{r, echo=TRUE, eval = TRUE}
-getwd()
+getwd() # shows your current working directory
+# setwd() # sets your working directory to a new location
 ```
 
 Working Directory
@@ -90,7 +104,6 @@ read_csv('data/mycsv.csv') # this is shorter and portable. It uses relative file
 read_csv('C:/Users/User/Documents/R/myproject/data/mycsv.csv') # this is bad. Not portable, and long. 
 
 ```
-
 
 
 Packages
@@ -139,19 +152,14 @@ help files & vignettes
 ```
 
 
-
-
-
-
-
-
 Other packages
 ========================================================
 
-Beyond the so-called `tidyverse` we'll be using a few other packages. You can install those through the same command as well. 
+Beyond the so-called `tidyverse` we'll be using a dataset package called `nycflights13`. 
 
 ```{r, echo=TRUE, eval=FALSE}
-install.packages(c("nycflights13", "gapminder", "Lahman"))
+install.packages("nycflights13") # to install the package
+library(nycflights13) # to load the package
 ```
 
 Running R code
@@ -253,7 +261,6 @@ l # see the whole list
 
 Tidyverse: tibbles
 ======================================================
-
 
 Tibbles are a modern take on data.frames. If you use `tidyverse` and the accompanying `tibble` package from the start you'll never notice the changes, but they make life easier. 
 
@@ -851,14 +858,26 @@ For more information
 
 Tutorials:
 
+Introducing R to Excel Users (great blog post w/ examples)
+<https://www.jessesadler.com/post/excel-vs-r/>
+
 Nice but dated (2012) tutorial on ggplot2
 <http://www.ling.upenn.edu/~joseff/avml2012/>
 
-Another nice ggplot2 tutorial
+Another nice ggplot2 tutorial (also dated)
 <http://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html>
+
+
+Guided Learning:
 
 DataCamp courses are free to start, but cost money to access later chapters. 
 <https://www.datacamp.com/courses/data-visualization-with-ggplot2-1>
+
+`swirl` package: "Learn R in R"
+```{r, eval=FALSE}
+install.packages("swirl") # install package
+swirl() # to start the program from the command line
+```
 
 
 Where to get help?
@@ -866,18 +885,25 @@ Where to get help?
 
 Asking questions:
 
-[StackOverflow](https://stackoverflow.com/questions/tagged/r)
-[ggplot2 Google Group](https://groups.google.com/forum/#!forum/ggplot2)
+* [StackOverflow](https://stackoverflow.com/questions/tagged/r)
+
+* [ggplot2 Google Group](https://groups.google.com/forum/#!forum/ggplot2)
 
 Or, you know... me. (Email: aaron.c.cochran@state.or.us, Phone: 503-945-6867)
 
+Excellent blogs:
+* [Simply Statistics](https://simplystatistics.org/)
+* [Revolution Analytics](http://blog.revolutionanalytics.com/)
+* [R-bloggers](https://www.r-bloggers.com/)
+
 Social Media:
-[RStudio Tips Twitter](https://twitter.com/rstudiotips)
-[Rbloggers Twitter](https://twitter.com/rbloggers?lang=en)
-[RTips Twitter](https://twitter.com/R_Programming)
+* [RStudio Tips Twitter](https://twitter.com/rstudiotips)
+* [Rbloggers Twitter](https://twitter.com/rbloggers?lang=en)
+* [RTips Twitter](https://twitter.com/R_Programming)
+
 
 For fun:
-[RCatLadies Twitter](https://twitter.com/rcatladies?lang=en)
+* [RCatLadies Twitter](https://twitter.com/rcatladies?lang=en) (Gender inclusive!)
 
 Lab 1
 ======================================================
