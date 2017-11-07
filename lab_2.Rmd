@@ -1,8 +1,9 @@
 ---
 title: "Lab 2"
-author: "Aaron C Cochran"
+output:
+  pdf_document: default
+  html_document: default
 date: "October 17, 2017"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
