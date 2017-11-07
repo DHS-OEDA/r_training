@@ -10,7 +10,9 @@ Lesson 2: Basic Statistics in R
 ========================================================
 author: 
 date: 
-autosize: true
+autosize: false
+height: 1080
+width: 1920
 
 ```{r setup, include=FALSE}
 opts_chunk$set(cache=TRUE, echo=TRUE, fig.height = 10, fig.width = 10, fig.show = 'hold', fig.align = 'center')
@@ -59,6 +61,23 @@ Descriptive stats: sjmisc
 flights %>% descr()
 ```
 
+Pairwise correlations: GGally
+====================================================
+
+A very cool extension to `ggplot` called `GGally` exists. I use it for pairwise correlations, but there are many other uses. 
+
+<http://ggobi.github.io/ggally/>
+
+```{r}
+library(GGally)
+data(tips, package="reshape")
+pm <- ggpairs(tips, aes(color=sex), columns=c("total_bill", "time", "tip"))
+pm
+
+```
+
+
+
 
 Hypothesis testing
 =====================================================
@@ -75,12 +94,6 @@ x <- rnorm(10)
 y <- rnorm(10)
 t.test(x, y)
 ```
-
-Categorical data
-====================================================
-
-`chisq.test` and `kruskal.test` here
-
 
 Linear models
 =====================================================
@@ -113,8 +126,6 @@ glmfit <- glm(am ~ wt, mtcars, family="binomial")
 glmfit
 ```
 
-
-
 broom: tidy up lm and t.test data
 ====================================================
 
@@ -140,5 +151,23 @@ There are a couple of other `broom` functions worth noting. These are especially
 head(tidy(fit))
 glance(fit)
 glance(glmfit)
+```
+
+Goodness of fit plots
+==================================================
+
+Quantile-quantile plot
+
+```{r}
+df <- data.frame(y=rt(200, df=5))
+p <- ggplot(df, aes(sample = y))
+p + geom_point(stat="qq")
+```
+
+Making it easier: ggfortify
+=================================================
+```{r}
+library(ggfortify)
+autoplot(lm(mpg~wt*hp, data=mtcars), label.size=3)
 ```
 

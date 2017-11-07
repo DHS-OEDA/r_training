@@ -129,6 +129,21 @@ Help with a function
 
 ```
 
+help files & vignettes  
+========================================================
+
+`table` function, for example...
+
+```{r}
+?table
+```
+
+
+
+
+
+
+
 
 Other packages
 ========================================================
