@@ -3,16 +3,14 @@ title: "Titanic Lab"
 author: "Aaron C Cochran"
 date: "September 12, 2017"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(mice)
-library(randomForest)
-library(data.table)
 library(pscl)
 library(ROCR)
 library(caret)
@@ -393,7 +391,8 @@ Now let's build our regression regression model.
 # Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked
 
 
-fit <- glm(Survived~Age+Pclass+Sex+SibSp+Parch+Fare+Embarked, data=train, family =binomial(link="logit"))
+fit <- glm(Survived~Age+Pclass+Sex+SibSp+Parch+Fare+Embarked,
+           data=train, family =binomial(link="logit"))
 
 summary(fit)
 
@@ -402,7 +401,8 @@ summary(fit)
 What if we replaced the Sex field with our engineered field, "Title" and re-ran the model? Would we have any improvement in the model?
 
 ```{r}
-fit2 <- glm(Survived~Age+Pclass+SibSp+Parch+Fare+Embarked+Title, data=train, family =binomial(link="logit"))
+fit2 <- glm(Survived~Age+Pclass+SibSp+Parch+Fare+Embarked+Title,
+            data=train, family =binomial(link="logit"))
 summary(fit2)
 ```
 
@@ -423,15 +423,22 @@ pR2(fit2)
 We could continue tweaking the model but for the purposes of this lab let's accept our `fit2` model and move on to prediction. 
 
 ```{r}
-fitted.results <- predict(fit2,newdata=subset(test,select=c(3,6,7,8,10,12,13)),type='response')
+fitted.results <- predict(fit2,newdata=
+                            subset(test,select=c(3,6,7,8,10,12,13)),
+                          type='response')
 fitted.results <- ifelse(fitted.results > 0.5,1,0)
 
-test2 <- test %>% select(-Survived) %>% mutate(PassengerId = as.numeric(PassengerId)) %>% left_join(results, by="PassengerId")
+test2 <- test %>% select(-Survived) %>%
+  mutate(PassengerId = as.numeric(PassengerId)) %>%
+  left_join(results, by="PassengerId")
 
 misClasificError <- mean(fitted.results != test2$Survived)
 print(paste('Accuracy',1-misClasificError))
 
 ```
+
+Wow. 91.6% predictive accuracy. It's almost as if this tutorial was _engineered_ for a class lab exercise that produced great results. Let's take one last moment and look at the other prediction results using `caret` and `ROCR` pacakges to visualize a confusion matrix and graph the area under the ROC. 
+
 
 ```{r}
 
