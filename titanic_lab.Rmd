@@ -11,8 +11,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(mice)
-library(randomForest)
-library(data.table)
 library(pscl)
 library(ROCR)
 library(caret)
