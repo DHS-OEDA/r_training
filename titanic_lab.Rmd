@@ -46,6 +46,7 @@ We can obtain the data directly from Kaggle. However, for this lab, I've already
 The training set is used to build the predictive model, and contains 1 extra variable: the outcome. The test set is what we'll use to see how well our model works, and does not contain the outcome variable. It's our job to predict this outcome. In this case, it's predicting whether or not the passenger survived the sinking of the HMS Titanic. 
 
 ```{r, echo = TRUE}
+
 test <- read_csv('data/titanic/test.csv')
 train <- read_csv('data/titanic/train.csv')
 
